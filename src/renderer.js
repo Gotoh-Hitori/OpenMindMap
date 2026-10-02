@@ -21,7 +21,14 @@ async function getEngine() {
           theme: 'neutral',
           themeVariables: {
             primaryColor: '#f5f5f7',
-            primaryTextColor: '#1d1d1f',
+            primaryTextColor: '#000000',
+            textColor: '#000000',
+            secondaryTextColor: '#000000',
+            tertiaryTextColor: '#000000',
+            gitBranchLabel0: '#000000',
+            ...Object.fromEntries(
+              Array.from({ length: 12 }, (_, index) => ['cScaleLabel' + index, '#000000']),
+            ),
             primaryBorderColor: '#86868b',
             lineColor: '#a1a1a6',
             fontFamily: 'Helvetica Neue, PingFang SC, sans-serif',

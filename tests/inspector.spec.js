@@ -198,3 +198,46 @@ test('原生颜色选择器仅发送 change 时仍保存颜色，两种事件不
   await page.click('#undo');
   await expect(page.locator('[data-id="a"]')).toHaveCSS('border-top-color', 'rgb(51, 51, 51)');
 });
+
+for (const mode of ['mindmap', 'flowchart']) {
+  test(`默认黑字 ${mode} 多分支、白底彩色节点及 SVG 导出均保持可读`, async ({ page }) => {
+    await load(page);
+    await page.selectOption('#mode', mode);
+    await page.locator('[data-id="r"]').click();
+    await page.click('#child');
+    await page.fill('#label', '另一分支');
+    await page.press('#label', 'Enter');
+    await page.locator('#color').fill('#d02040');
+    await expect(page.locator('.node-title').last()).toHaveCSS('color', 'rgb(0, 0, 0)');
+    await page.click('#view-output');
+    await expect(page.locator('#preview svg')).toBeVisible();
+    const texts = page.locator('#preview .node text, #preview .node .nodeLabel');
+    expect(await texts.count()).toBeGreaterThanOrEqual(3);
+    for (const text of await texts.all()) {
+      const property = await text.evaluate((el) =>
+        el.tagName.toLowerCase() === 'text' ? 'fill' : 'color',
+      );
+      await expect(text).toHaveCSS(property, 'rgb(0, 0, 0)');
+    }
+    const pending = page.waitForEvent('download');
+    await page.click('#download-svg');
+    let source = '';
+    for await (const chunk of await (await pending).createReadStream()) source += chunk.toString();
+    const fills = await page.evaluate((svg) => {
+      const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
+      const image = document.importNode(doc.documentElement, true);
+      image.style.position = 'fixed';
+      image.style.left = '-100000px';
+      document.body.append(image);
+      const values = [...image.querySelectorAll('.node text, .node .nodeLabel')].map((el) =>
+        el.tagName.toLowerCase() === 'text'
+          ? getComputedStyle(el).fill
+          : getComputedStyle(el).color,
+      );
+      image.remove();
+      return values;
+    }, source);
+    expect(fills.length).toBeGreaterThanOrEqual(3);
+    expect(fills.every((fill) => fill === 'rgb(0, 0, 0)')).toBe(true);
+  });
+}

@@ -170,7 +170,7 @@ export function createCanvas({
         label = document.createElementNS(ns, 'text');
         label.setAttribute('x', '0');
         label.setAttribute('y', '0');
-        label.setAttribute('fill', '#6e6e73');
+        label.setAttribute('fill', '#000000');
         label.setAttribute('font-size', '12');
         label.dataset.edgeLabel = edge.id;
         label.textContent = edge.label;

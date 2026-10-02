@@ -124,7 +124,7 @@ function addNode(svg, node, element) {
     group.append(shape);
   }
   const title = element.querySelector('.node-title');
-  if (title) appendText(group, title, element.getBoundingClientRect(), '#1d1d1f');
+  if (title) appendText(group, title, element.getBoundingClientRect(), '#000000');
   const meta = element.querySelector('.node-meta');
   if (meta) appendText(group, meta, element.getBoundingClientRect(), '#86868b');
   svg.append(group);
@@ -174,7 +174,7 @@ export function exportCanvasSvg({ state, nodesRoot, edgeSvg, elementById }) {
       const copy = svgElement('text', {
         x: label.getAttribute('x') || 0,
         y: label.getAttribute('y') || 0,
-        ...fontAttributes(label, '#6e6e73'),
+        ...fontAttributes(label, '#000000'),
       });
       copy.textContent = label.textContent;
       snapshot.append(copy);

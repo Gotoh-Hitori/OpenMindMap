@@ -147,6 +147,7 @@ h2 {
   border-radius: 45px;
 }
 .node-title {
+  color: #000000;
   font-size: 13px;
   font-weight: 500;
   line-height: 1.5;

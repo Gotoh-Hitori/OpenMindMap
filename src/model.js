@@ -408,16 +408,18 @@ export function toMermaid(stateInput, diagram = 'flowchart') {
     // Carry their CSS in the source so standalone Mermaid and SVG retain colors.
     const colored = state.nodes.filter((node) => safeColor(node.color));
     const colorClass = (id) => 'omm-color-' + indexById.get(id);
-    const themeCSS = colored
-      .map(
-        (node) =>
-          '.' +
-          colorClass(node.id) +
-          ' .label-container{fill:#ffffff!important;stroke:' +
-          safeColor(node.color) +
-          '!important;stroke-width:2px!important;}',
-      )
-      .join('');
+    const themeCSS =
+      '.mindmap-node text,.mindmap-node span,.mindmap-node .nodeLabel{fill:#000000!important;color:#000000!important;}' +
+      colored
+        .map(
+          (node) =>
+            '.' +
+            colorClass(node.id) +
+            ' .label-container{fill:#ffffff!important;stroke:' +
+            safeColor(node.color) +
+            '!important;stroke-width:2px!important;}',
+        )
+        .join('');
     const lines = ['mindmap', `  root(("${mermaidText(byId.get(state.rootId).label)}"))`];
     if (safeColor(byId.get(state.rootId).color)) lines.push('    :::' + colorClass(state.rootId));
     const emitted = new Set([state.rootId]);
@@ -454,7 +456,9 @@ export function toMermaid(stateInput, diagram = 'flowchart') {
     const identifier = indexById.get(node.id);
     lines.push(`  ${flowchartNode(node, identifier)}`);
     const color = safeColor(node.color);
-    if (color) lines.push(`  style ${identifier} fill:#ffffff,stroke:${color},stroke-width:2px`);
+    lines.push(
+      `  style ${identifier} ${color ? 'fill:#ffffff,stroke:' + color + ',stroke-width:2px,' : ''}color:#000000`,
+    );
   });
   state.edges.forEach((edge) => {
     const label =
