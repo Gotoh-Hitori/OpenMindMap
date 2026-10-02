@@ -2,6 +2,8 @@
 
 OpenMindMap 是一款纯前端思维导图与关系图编辑器。画布、Mermaid 代码和图形预览在同一页面中使用；无需账号、数据库或 API Key。
 
+在线使用：[open-mind-map.vercel.app](https://open-mind-map.vercel.app/)
+
 ## 开始使用
 
 建议 Node.js 24 LTS；也支持 20.19+ 或 22.13+ 的对应主版本。

@@ -724,3 +724,38 @@ body[data-view='output'] #status {
     min-height: 350px;
   }
 }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.repository-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 6px;
+  color: #000000;
+  font-size: 12px;
+  text-decoration: none;
+}
+.repository-link:hover {
+  background: #f2f2f4;
+}
+.repository-link:focus-visible {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+@media (max-width: 760px) {
+  .repository-link span {
+    display: none;
+  }
+  .repository-link {
+    padding: 6px;
+  }
+  .header-actions {
+    gap: 4px;
+  }
+}
