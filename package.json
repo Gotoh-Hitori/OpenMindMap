@@ -1,0 +1,45 @@
+{
+  "name": "openmindmap",
+  "version": "1.0.0",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test src/*.test.js",
+    "test:ui": "playwright test",
+    "test:smoke": "node tests/smoke.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test",
+    "release:pack": "node scripts/package-release.mjs",
+    "licenses": "node scripts/licenses.mjs",
+    "format": "prettier --write \"src/**/*.{js,css}\" \"tests/*.{js,mjs}\" \"scripts/*.mjs\" \"*.{js,json}\" index.html \".github/**/*.yml\"",
+    "format:check": "prettier --check \"src/**/*.{js,css}\" \"tests/*.{js,mjs}\" \"scripts/*.mjs\" \"*.{js,json}\" index.html \".github/**/*.yml\""
+  },
+  "dependencies": {
+    "mermaid": "^11.12.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.55.1",
+    "eslint": "^10.11.0",
+    "globals": "^16.5.0",
+    "prettier": "^3.9.9",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.7"
+  },
+  "engines": {
+    "node": "^20.19.0 || ^22.13.0 || >=24"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Gotoh-Hitori/OpenMindMap.git"
+  },
+  "homepage": "https://github.com/Gotoh-Hitori/OpenMindMap#readme",
+  "bugs": {
+    "url": "https://github.com/Gotoh-Hitori/OpenMindMap/issues"
+  }
+}

@@ -1,0 +1,23 @@
+﻿name: 问题反馈
+description: 报告绘图、渲染或导入导出问题
+title: '[Bug] '
+body:
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 请提供不包含私人信息的最小复现。
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期结果与实际结果
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: 浏览器与操作系统版本
+    validations:
+      required: true

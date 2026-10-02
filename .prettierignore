@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.audit/
+.npm-cache/
+playwright-report/
+test-results/
+releases/
+LICENSE
+THIRD_PARTY_NOTICES.md

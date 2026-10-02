@@ -1,0 +1,11 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+.vercel/
+.env*
+.npm-cache/
+tests/preview.png
+.audit/
+releases/
+coverage/

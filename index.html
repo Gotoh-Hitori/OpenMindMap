@@ -1,0 +1,117 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="自由绘制思维导图，实时生成 Mermaid" />
+    <title>OpenMindMap</title>
+  </head>
+  <body data-view="canvas">
+    <header class="app-bar">
+      <h1>OpenMindMap</h1>
+      <nav aria-label="工作视图">
+        <button id="view-canvas" class="active" aria-pressed="true">画布</button
+        ><button id="view-output" aria-pressed="false">Mermaid</button>
+      </nav>
+      <details class="file-menu">
+        <summary>文件</summary>
+        <div class="menu">
+          <span id="save-status">本地自动保存</span><button id="new">新建导图</button
+          ><button id="import">导入 JSON</button><button id="export">导出 JSON</button
+          ><button id="export-canvas-svg">导出画布 SVG</button
+          ><button id="recover" hidden>导出损坏存档原文</button
+          ><button id="clear-recovery" hidden>清理恢复副本</button
+          ><button id="reload-saved">载入最新本地存档</button>
+        </div>
+      </details>
+    </header>
+    <main>
+      <section id="canvas-view" aria-label="画布视图">
+        <div id="viewport" tabindex="0" aria-label="思维导图编辑画布">
+          <div id="world">
+            <svg id="connections"></svg>
+            <div id="nodes"></div>
+          </div>
+        </div>
+        <div class="canvas-toolbar" aria-label="画布工具">
+          <button id="add" class="primary">＋ 节点</button><button id="child">＋ 子节点</button
+          ><span class="separator"></span><button id="undo">撤销</button
+          ><button id="redo">重做</button><span class="separator"></span
+          ><button id="layout">排版</button><button id="fit">适应</button>
+        </div>
+        <aside id="selection-panel">
+          <div class="inspector">
+            <label>标题<input id="label" maxlength="500" placeholder="选中节点后编辑" /></label>
+            <div class="appearance">
+              <label>颜色<input id="color" type="color" value="#333333" /></label
+              ><label
+                >形状<select id="shape">
+                  <option value="rounded">圆角</option>
+                  <option value="rect">矩形</option>
+                  <option value="circle">圆形</option>
+                  <option value="diamond">菱形</option>
+                </select></label
+              >
+            </div>
+            <div id="edge-editor" hidden>
+              <label>连线文字<input id="edge-label" maxlength="200" /></label>
+            </div>
+            <div class="selection-actions">
+              <button id="detach">断开连接</button><button id="delete">删除</button>
+            </div>
+          </div>
+        </aside>
+        <div class="canvas-settings">
+          <select id="mode" aria-label="导图模式">
+            <option value="mindmap">思维导图</option>
+            <option value="flowchart">自由关系图</option>
+          </select>
+        </div>
+        <div class="canvas-footer">
+          <span id="stats"></span>
+          <details class="help">
+            <summary>帮助</summary>
+            <div>
+              双击空白新增节点，拖动圆点连接。<br />拖动空白平移，滚轮缩放。<br />Tab 新增子节点 ·
+              Delete 删除<br />Ctrl / Cmd + Z 撤销<br /><br />自动保存到当前浏览器。导出 JSON
+              可完整备份；树形模式只允许一个父节点，自由关系图支持循环。
+            </div>
+          </details>
+        </div>
+        <div class="zoom">
+          <button id="zoom-out" aria-label="缩小">−</button><span id="zoom-value">100%</span
+          ><button id="zoom-in" aria-label="放大">＋</button>
+        </div>
+      </section>
+      <section id="output-view" hidden aria-label="Mermaid 代码与预览">
+        <div class="output-header">
+          <h2>Mermaid</h2>
+          <div class="tools">
+            <button id="copy">复制代码</button><button id="download-code">下载 .mmd</button
+            ><button id="download-svg">导出 SVG</button>
+          </div>
+        </div>
+        <div class="output-grid">
+          <section class="source-pane">
+            <div class="pane-heading">
+              <h3>代码</h3>
+              <button id="regenerate">恢复生成代码</button>
+            </div>
+            <textarea id="code" spellcheck="false" aria-label="Mermaid 代码"></textarea
+            ><span id="code-state">与画布同步</span>
+          </section>
+          <section class="preview-pane">
+            <div class="pane-heading">
+              <h3>预览</h3>
+              <button id="render">重新渲染</button>
+            </div>
+            <div id="preview">正在准备预览…</div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <div id="status" role="status" aria-live="polite"></div>
+    <input id="file" type="file" accept=".json,application/json" hidden />
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>
