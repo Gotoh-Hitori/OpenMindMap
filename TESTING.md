@@ -39,6 +39,8 @@ macOS / Linux 可用 `TEST_PRODUCTION=1 TEST_BROWSER=firefox npm run test:ui`。
 
 画布 SVG 专项验证原节点坐标和连线路径、纯 SVG 图像加载、自然尺寸与等比缩放、负坐标、长中文/特殊文字、菱形与自环、裁切边界、隐藏画布、拖动编辑后的导出及导出不改变数据/撤销记录。
 
+反向同步测试使用真实 Mermaid 浏览器解析器，验证粘贴后结构/颜色/标签、循环、画布继续编辑/撤销、刷新恢复、错误与其他图类型保护、快速输入失效旧结果、原生成源码实体/坐标往返。另有转换数据库的单元测试，浏览器解析器与渲染共用串行队列。
+
 ## 实际验收
 
 最终记录见 [RELEASE_V1.md](RELEASE_V1.md)。报告保存在 `playwright-report/<browser>/`，失败截图和 trace 在 `test-results/<browser>/`，均不进源码发布包。

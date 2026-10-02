@@ -85,6 +85,21 @@ export function createRenderer(preview, report) {
       clearTimeout(timer);
       return render(source);
     },
+    // Parsing and rendering share Mermaid's mutable diagram databases.
+    // Convert inside the same queue before another job can clear the database.
+    parse(source, convert) {
+      const result = chain.then(async () => {
+        if (source.length > MAX_SOURCE_LENGTH) throw Error('代码超过 2 MB 字符限制，请拆分导图');
+        const mermaid = await getEngine();
+        const diagram = await mermaid.mermaidAPI.getDiagramFromText(source);
+        return convert(diagram);
+      });
+      chain = result.then(
+        () => undefined,
+        () => undefined,
+      );
+      return result;
+    },
     getSvg: () => svg,
   };
 }

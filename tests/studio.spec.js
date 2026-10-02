@@ -263,8 +263,9 @@ test('错误 Mermaid 恢复，连续编辑最终预览对应最新代码', async
   await page.fill('#code', 'flowchart TD\n A["最新结果"] --> B["完成"]');
   await page.click('#render');
   await expect(page.locator('#preview')).toContainText('最新结果');
+  await expect(page.locator('#code-state')).toContainText('已同步到画布');
   await page.click('#regenerate');
-  await expect(page.locator('#preview')).toContainText('中心主题');
+  await expect(page.locator('#preview')).toContainText('最新结果');
 });
 test('预览视图的删除键不应修改画布', async ({ page }) => {
   await root(page).click();

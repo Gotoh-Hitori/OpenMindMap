@@ -14,6 +14,7 @@ import {
 import { createPersistence, download } from './storage.js';
 import { createRenderer } from './renderer.js';
 import { createCanvas } from './canvas.js';
+import { diagramToState } from './mermaid-import.js';
 import {
   MAX_NODES,
   MAX_EDGES,
@@ -75,6 +76,9 @@ const elements = {
 const $ = (id) => elements[id];
 let views,
   importVersion = 0,
+  pendingCanvasFit = false,
+  reverseVersion = 0,
+  reverseTimer,
   pendingExternal = false;
 const report = (text) => views?.notify(text);
 const persistence = createPersistence(normalizeState, {
@@ -100,9 +104,9 @@ function safe(action) {
     report(`操作未完成：${error.message}`);
   }
 }
-function commit(next) {
+function commit(next, source = null) {
   if (JSON.stringify(next) === JSON.stringify(state)) {
-    sync(false);
+    sync(false, source);
     return;
   }
   undo.push(state);
@@ -111,7 +115,7 @@ function commit(next) {
   state = next;
   if (!state.nodes.some((n) => n.id === selected)) selected = state.rootId;
   if (!state.edges.some((e) => e.id === edge)) edge = null;
-  sync();
+  sync(true, source);
 }
 const canvas = createCanvas({
   getState: () => state,
@@ -133,7 +137,18 @@ const canvas = createCanvas({
   onAdd: (p) => add(false, p),
 });
 views = setupViews({
-  onCanvas: () => canvas.render(),
+  onCanvas: () => {
+    canvas.render();
+    if (pendingCanvasFit) {
+      pendingCanvasFit = false;
+      canvas.fit();
+    }
+    if (reverseTimer) {
+      clearTimeout(reverseTimer);
+      reverseTimer = null;
+      void syncMermaidToCanvas($('code').value, reverseVersion);
+    }
+  },
   onOutput: () => renderer.render($('code').value),
 });
 // Canvas pointerdown runs before native blur; commit the old node's draft first.
@@ -155,7 +170,10 @@ function inspector() {
   $('edge-editor').hidden = !edge || state.mode !== 'flowchart';
   $('edge-label').value = state.edges.find((e) => e.id === edge)?.label || '';
 }
-function sync(save = true) {
+function sync(save = true, source = null) {
+  ++reverseVersion;
+  clearTimeout(reverseTimer);
+  reverseTimer = null;
   if (save) void persistence.save(state);
   $('recover').hidden = $('clear-recovery').hidden = !persistence.getRecovery();
   $('mode').value = state.mode;
@@ -164,10 +182,12 @@ function sync(save = true) {
   $('stats').textContent = `${state.nodes.length} 个节点 · ${state.edges.length} 条连接`;
   inspector();
   canvas.render();
-  $('code').value = toMermaid(state, state.mode);
-  $('code-state').textContent = '与画布同步';
-  renderer.invalidate();
-  if (document.body.dataset.view === 'output') renderer.schedule($('code').value);
+  $('code').value = source ?? toMermaid(state, state.mode);
+  $('code-state').textContent = source === null ? '与画布同步' : '已同步到画布 · 可切换画布编辑';
+  if (source === null) {
+    renderer.invalidate();
+    if (document.body.dataset.view === 'output') renderer.schedule($('code').value);
+  }
 }
 function add(child, p) {
   safe(() => {
@@ -339,7 +359,7 @@ $('file').onchange = async () => {
     selected = next.rootId;
     edge = null;
     commit(next);
-    canvas.fit();
+    fitCanvasWhenVisible();
     report('导入成功');
   } catch (error) {
     if (current === importVersion) report(`导入失败：${error.message}`);
@@ -368,13 +388,45 @@ $('download-svg').onclick = () => {
 };
 $('render').onclick = () => renderer.render($('code').value);
 $('regenerate').onclick = () => {
+  ++reverseVersion;
+  clearTimeout(reverseTimer);
+  reverseTimer = null;
   $('code').value = toMermaid(state, state.mode);
   $('code-state').textContent = '与画布同步';
   renderer.schedule($('code').value);
 };
+function fitCanvasWhenVisible() {
+  if (document.body.dataset.view === 'canvas') canvas.fit();
+  else pendingCanvasFit = true;
+}
+async function syncMermaidToCanvas(source, current) {
+  const previous = state;
+  try {
+    const next = await renderer.parse(source, (diagram) => diagramToState(diagram, previous));
+    if (current !== reverseVersion || source !== $('code').value || previous !== state) return;
+    checkImportSize(next);
+    canvas.cancelGesture();
+    selected = next.rootId;
+    edge = null;
+    commit(next, source);
+    fitCanvasWhenVisible();
+    report('Mermaid 已同步至画布，可以继续编辑');
+  } catch (error) {
+    if (current !== reverseVersion || source !== $('code').value) return;
+    $('code-state').textContent = '画布未修改 · ' + String(error.message || error).slice(0, 160);
+  }
+}
 $('code').oninput = () => {
-  $('code-state').textContent = '手动编辑 · 画布修改会重新生成';
-  renderer.schedule($('code').value);
+  const source = $('code').value;
+  const current = ++reverseVersion;
+  clearTimeout(reverseTimer);
+  reverseTimer = null;
+  $('code-state').textContent = '正在同步到画布…';
+  renderer.schedule(source);
+  reverseTimer = setTimeout(() => {
+    reverseTimer = null;
+    void syncMermaidToCanvas(source, current);
+  }, 400);
 };
 window.addEventListener('keydown', (e) => {
   const target = /** @type {HTMLElement} */ (e.target);
